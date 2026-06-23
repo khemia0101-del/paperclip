@@ -5,6 +5,7 @@ import threadsRouter from "./threads";
 import messagesRouter from "./messages";
 import dashboardRouter from "./dashboard";
 import settingsRouter from "./settings";
+import webhookRouter from "./webhook";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(threadsRouter);
 router.use(messagesRouter);
 router.use(dashboardRouter);
 router.use(settingsRouter);
+router.use(webhookRouter);
 
 export default router;

@@ -1,12 +1,20 @@
 import { useGetSettings, useUpdateSettings, getGetSettingsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { CheckCircle2, AlertCircle, Eye, EyeOff, Webhook, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+
+type WebhookStatus = {
+  registered: boolean;
+  url?: string;
+  pendingUpdates?: number;
+  lastError?: string | null;
+  reason?: string;
+};
 
 export default function Settings() {
   const qc = useQueryClient();
@@ -17,6 +25,9 @@ export default function Settings() {
   const [token, setToken] = useState("");
   const [chatId, setChatId] = useState("");
   const [showToken, setShowToken] = useState(false);
+  const [webhookStatus, setWebhookStatus] = useState<WebhookStatus | null>(null);
+  const [webhookLoading, setWebhookLoading] = useState(false);
+  const [registerLoading, setRegisterLoading] = useState(false);
 
   useEffect(() => {
     if (settings) {
@@ -24,6 +35,37 @@ export default function Settings() {
       setChatId(settings.telegramChatId ?? "");
     }
   }, [settings]);
+
+  async function checkWebhookStatus() {
+    setWebhookLoading(true);
+    try {
+      const resp = await fetch("/api/webhook/status");
+      const data: WebhookStatus = await resp.json();
+      setWebhookStatus(data);
+    } catch {
+      toast({ title: "Failed to check webhook status", variant: "destructive" });
+    } finally {
+      setWebhookLoading(false);
+    }
+  }
+
+  async function registerWebhook() {
+    setRegisterLoading(true);
+    try {
+      const resp = await fetch("/api/webhook/register", { method: "POST" });
+      const data = await resp.json() as { ok?: boolean; webhookUrl?: string; error?: string };
+      if (data.ok) {
+        toast({ title: "Webhook registered!", description: `Pointing to ${data.webhookUrl}` });
+        await checkWebhookStatus();
+      } else {
+        toast({ title: "Registration failed", description: data.error, variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Failed to register webhook", variant: "destructive" });
+    } finally {
+      setRegisterLoading(false);
+    }
+  }
 
   function save() {
     const data: { telegramBotToken?: string; telegramChatId?: string } = {};
@@ -151,20 +193,75 @@ export default function Settings() {
           >
             {updateMut.isPending ? "Saving..." : "Save Settings"}
           </Button>
+        </div>
+      )}
 
-          <div className="border-t border-border pt-5 space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              How it works
-            </p>
-            <ul className="text-xs text-muted-foreground space-y-1.5">
-              <li>1. Create a Telegram bot via @BotFather and get your Bot Token</li>
-              <li>2. Find your Chat ID using @userinfobot</li>
-              <li>3. Send your Hermes agent a message through this app</li>
-              <li>4. Hermes agent replies via Telegram — replies are polled and shown here</li>
-            </ul>
+      {/* Webhook section */}
+      {settings?.configured && (
+        <div className="border-t border-border pt-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <Webhook className="w-4 h-4 text-primary" />
+            <p className="text-sm font-semibold">Telegram Webhook</p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Register a webhook so your Hermes agent's replies arrive instantly — no polling delay.
+            Only needed once after you save your bot token.
+          </p>
+
+          {webhookStatus && (
+            <div className={`p-3 rounded border text-xs space-y-1 ${
+              webhookStatus.registered
+                ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-400"
+                : "border-amber-500/30 bg-amber-500/5 text-amber-400"
+            }`}>
+              <p className="font-medium">
+                {webhookStatus.registered ? "Webhook active" : "No webhook registered"}
+              </p>
+              {webhookStatus.url && (
+                <p className="text-muted-foreground font-mono truncate">{webhookStatus.url}</p>
+              )}
+              {webhookStatus.lastError && (
+                <p className="text-destructive">{webhookStatus.lastError}</p>
+              )}
+              {webhookStatus.registered && (
+                <p className="text-muted-foreground">{webhookStatus.pendingUpdates ?? 0} pending updates</p>
+              )}
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={checkWebhookStatus}
+              disabled={webhookLoading}
+            >
+              {webhookLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+              Check Status
+            </Button>
+            <Button
+              size="sm"
+              onClick={registerWebhook}
+              disabled={registerLoading}
+            >
+              {registerLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+              Register Webhook
+            </Button>
           </div>
         </div>
       )}
+
+      <div className="border-t border-border pt-5 space-y-2">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          How it works
+        </p>
+        <ul className="text-xs text-muted-foreground space-y-1.5">
+          <li>1. Create a Telegram bot via @BotFather and get your Bot Token</li>
+          <li>2. Find your Chat ID using @userinfobot</li>
+          <li>3. Save settings, then click "Register Webhook" for instant replies</li>
+          <li>4. Send your Hermes agent a message — replies appear instantly</li>
+        </ul>
+      </div>
     </div>
   );
 }
