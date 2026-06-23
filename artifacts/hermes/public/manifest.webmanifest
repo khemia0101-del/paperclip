@@ -1,0 +1,20 @@
+{
+  "name": "Paperclip Command Center",
+  "short_name": "Paperclip",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "browser"],
+  "background_color": "#09090b",
+  "theme_color": "#f5b800",
+  "orientation": "portrait-primary",
+  "description": "Multi-agent command center for tasks, approvals, artifacts, Obsidian notes, and scheduled jobs.",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "New Action", "url": "/actions", "description": "Start a task from the app" },
+    { "name": "Approvals", "url": "/approvals", "description": "Review pending approvals" }
+  ]
+}

@@ -7,6 +7,14 @@ import { useEffect } from "react";
 
 // Pages
 import Dashboard from "@/pages/dashboard";
+import CommandCenter from "@/pages/command-center";
+import Actions from "@/pages/actions";
+import Agents from "@/pages/agents";
+import Approvals from "@/pages/approvals";
+import Artifacts from "@/pages/artifacts";
+import ObsidianMemory from "@/pages/obsidian-memory";
+import ScheduledJobs from "@/pages/scheduled-jobs";
+import WorkstreamsCommand from "@/pages/workstreams-command";
 import Workflows from "@/pages/workflows";
 import Threads from "@/pages/threads";
 import ThreadView from "@/pages/thread-view";
@@ -19,7 +27,15 @@ function Router() {
   return (
     <Layout>
       <Switch>
-        <Route path="/" component={Dashboard} />
+        <Route path="/" component={CommandCenter} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/actions" component={Actions} />
+        <Route path="/agents" component={Agents} />
+        <Route path="/approvals" component={Approvals} />
+        <Route path="/artifacts" component={Artifacts} />
+        <Route path="/obsidian" component={ObsidianMemory} />
+        <Route path="/scheduled-jobs" component={ScheduledJobs} />
+        <Route path="/workstreams" component={WorkstreamsCommand} />
         <Route path="/workflows" component={Workflows} />
         <Route path="/threads" component={Threads} />
         <Route path="/threads/:id" component={ThreadView} />

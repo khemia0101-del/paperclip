@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Activity, MessageSquare, Settings, Zap, Menu } from "lucide-react";
+import { Activity, MessageSquare, Settings, Zap, Menu, Bot, CheckSquare, Paperclip, Database, CalendarClock, FolderKanban } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -9,14 +9,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { href: "/", label: "Dashboard", icon: Activity },
-    { href: "/workflows", label: "Workflows", icon: Zap },
+    { href: "/", label: "Command", icon: Activity },
+    { href: "/actions", label: "Actions", icon: Zap },
+    { href: "/workstreams", label: "Workstreams", icon: FolderKanban },
+    { href: "/agents", label: "Agents", icon: Bot },
+    { href: "/approvals", label: "Approvals", icon: CheckSquare },
+    { href: "/artifacts", label: "Artifacts", icon: Paperclip },
+    { href: "/obsidian", label: "Obsidian/Memory", icon: Database },
+    { href: "/scheduled-jobs", label: "Scheduled", icon: CalendarClock },
     { href: "/threads", label: "Threads", icon: MessageSquare },
+    { href: "/workflows", label: "Workflows", icon: Zap },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
 
   const NavContent = () => (
-    <div className="flex flex-col gap-2 p-4 h-full">
+    <div className="flex flex-col gap-2 p-4 h-full overflow-y-auto">
       <div className="flex items-center gap-2 px-2 pb-6 pt-2">
         <div className="bg-primary text-primary-foreground p-1.5 rounded flex items-center justify-center">
           <Zap className="w-5 h-5 fill-current" />
